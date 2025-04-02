@@ -22,7 +22,7 @@ REQUIRED_VARS = []
 
 IGNORE_DIRS = {'.git', 'node_modules', '.vscode', 'dist', 'build', '.next', '.cache', '__pycache__', 'venv', 'env'}
 IGNORE_FILES = {'.DS_Store', '.gitignore', '.env'}
-WILDCARD_IGNORES = ['*.log', '*.pyc', '*.pyo', '*.pyd', '*.so', '*.dylib', '*.dll']
+WILDCARD_IGNORES = ['*.log', '*.pyc', '*.pyo', '*.pyd', '*.so', '*.dylib', '*.dll', '*.ipynb']
 MAX_FILE_SIZE = 500 * 1024  # 500KB
 
 def log_err(msg): print(f"{RED}{msg}{RESET}")

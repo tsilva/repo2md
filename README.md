@@ -1,4 +1,8 @@
 # 📄 repo2md
+<p align="center">
+  <img src="logo.jpg" alt="Logo" width="400"/>
+</p>
+
 
 🔹 Convert a local repository into a single Markdown document.
 
@@ -24,8 +28,8 @@ repo2md
 # Convert a specific repository path
 repo2md /path/to/your/repository
 
-# Convert repository without copying to clipboard
-repo2md /path/to/your/repository --no-clipboard
+# Convert repository and copy to clipboard
+repo2md /path/to/your/repository --clipboard
 
 # Save output directly to a file
 repo2md /path/to/your/repository > output.md

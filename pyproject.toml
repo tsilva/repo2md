@@ -25,4 +25,4 @@ classifiers = [
 repo2md = "repo2md.main:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/repo2md"]
+include = ["src/repo2md"]

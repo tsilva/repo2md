@@ -24,5 +24,10 @@ classifiers = [
 [project.scripts]
 repo2md = "repo2md.main:main"
 
+# Use src layout which is the recommended approach
+[tool.hatch.build]
+packages = ["src"]
+
+# Specify package locations
 [tool.hatch.build.targets.wheel]
 include = ["src/repo2md"]

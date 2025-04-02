@@ -52,6 +52,14 @@ def should_ignore(path: Path) -> bool:
         return True
     return any(fnmatch.fnmatch(name, pattern) for pattern in WILDCARD_IGNORES)
 
+def is_binary_file(path: Path) -> bool:
+    try:
+        with path.open('rb') as f:
+            chunk = f.read(1024)
+        return b'\0' in chunk
+    except Exception:
+        return False
+
 def generate_file_tree(path: Path, indent: str = "") -> str:
     lines = []
     stack = [(path, indent)]
@@ -71,24 +79,25 @@ def generate_file_tree(path: Path, indent: str = "") -> str:
                 stack.append((item, current_indent + "  "))
             else:
                 lines.append(f"{current_indent}- 📄 {item.name}")
-    return "\n".join(reversed(lines))
+    return "\n".join(lines)
 
 def process_file(file_path: Path, rel_path: Path) -> str:
     try:
         size = file_path.stat().st_size
         if size > MAX_FILE_SIZE:
             return f"\n<<< START FILE: {rel_path} >>>\n*File too large to include ({size / 1024:.2f} KB)*\n<<< END FILE: {rel_path} >>>\n"
+        if is_binary_file(file_path):
+            return f"\n<<< START FILE: {rel_path} >>>\n*Binary file skipped*\n<<< END FILE: {rel_path} >>>\n"
         content = file_path.read_text(encoding='utf-8', errors='replace')
-        ext = file_path.suffix.lstrip('.') or 'txt'
         return (
             f"\n<<< START FILE: {rel_path} >>>\n"
-            f"```{ext}\n{content}\n```\n"
+            f"{content}"
             f"<<< END FILE: {rel_path} >>>\n"
         )
     except Exception as e:
         return f"\n<<< START FILE: {rel_path} >>>\n*Error reading file: {e}*\n<<< END FILE: {rel_path} >>>\n"
 
-def process_repository(base: Path) -> list[str]:
+def process_repository(base):
     results = []
     for root, dirs, files in os.walk(base):
         dirs[:] = [d for d in dirs if not should_ignore(Path(root) / d)]
@@ -102,17 +111,17 @@ def process_repository(base: Path) -> list[str]:
 
 def generate_markdown(repo_path: Path) -> str:
     abs_repo = repo_path.resolve()
-    header = f"# Repository: {abs_repo.name}\n\n*Generated on: {datetime.now().isoformat()}*\n"
     tree = generate_file_tree(abs_repo)
     files_content = "".join(process_repository(abs_repo))
 
-    return f"""{header}
+    return f"""
+# Repository: {abs_repo.name}
+
+*Generated on: {datetime.now().isoformat()}*
 
 ## 📁 File Tree
 
-```tree
 {tree}
-```
 
 ## 📄 Files
 
@@ -143,5 +152,5 @@ def main():
 
     print(markdown)
 
-if __name__ == "main": 
+if __name__ == "__main__":
     main()

@@ -3,6 +3,11 @@ import os
 import sys
 from datetime import datetime
 import argparse
+try:
+    import pyperclip
+    CLIPBOARD_AVAILABLE = True
+except ImportError:
+    CLIPBOARD_AVAILABLE = False
 
 # Configuration
 IGNORE_DIRS = ['.git', 'node_modules', '.vscode', 'dist', 'build', '.next', '.cache', '__pycache__', 'venv', 'env']
@@ -131,6 +136,7 @@ def generate_markdown(repo_path):
 def main():
     parser = argparse.ArgumentParser(description='Convert a repository to a Markdown file')
     parser.add_argument('repo_path', nargs='?', default='.', help='Path to the repository (default: current directory)')
+    parser.add_argument('--no-clipboard', action='store_true', help='Do not copy output to clipboard')
     args = parser.parse_args()
     
     repo_path = args.repo_path
@@ -142,6 +148,16 @@ def main():
         markdown_content = generate_markdown(repo_path)
         if not markdown_content:
             sys.exit(1)
+        
+        # Copy to clipboard if available and not disabled
+        if CLIPBOARD_AVAILABLE and not args.no_clipboard:
+            try:
+                pyperclip.copy(markdown_content)
+                print("✅ Markdown copied to clipboard", file=sys.stderr)
+            except Exception as e:
+                print(f"❌ Failed to copy to clipboard: {str(e)}", file=sys.stderr)
+        elif not CLIPBOARD_AVAILABLE and not args.no_clipboard:
+            print("ℹ️ Clipboard functionality not available. Install pyperclip: pip install pyperclip", file=sys.stderr)
         
         # Write to stdout
         print(markdown_content)

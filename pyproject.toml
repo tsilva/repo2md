@@ -8,11 +8,12 @@ version = "0.1.0"
 authors = [
   { name = "Tiago Silva" },
 ]
-description = "Convert a repository to a Markdown document"
+description = "A utility for managing and organizing notes"
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 dependencies = [
-    "pyperclip",
+    "python-dotenv"
+    "pyperclip"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -23,10 +24,10 @@ classifiers = [
 [project.scripts]
 repo2md = "repo2md.main:main"
 
-# Use src layout which is the recommended approach
-[tool.hatch.build]
-packages = ["src"]
-
-# Specify package locations
 [tool.hatch.build.targets.wheel]
 packages = ["src/repo2md"]
+
+[tool.hatch.build]
+include = [
+  "src/repo2md/.env.example",
+]

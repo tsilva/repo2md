@@ -6,28 +6,24 @@ build-backend = "hatchling.build"
 name = "repo2md"
 version = "0.1.0"
 authors = [
-  { name = "Tiago Silva" },
+  { name = "Tiago Silva" }
 ]
-description = "Convert a local repository into a single Markdown document."
+description = "A utility for managing and organizing notes"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "python-dotenv",
-    "pyperclip"
+  "tqdm",
+  "openai",
+  "python-dotenv"
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
 ]
 
 [project.scripts]
 repo2md = "repo2md.main:main"
 
-# Use src layout which is the recommended approach
-[tool.hatch.build]
-packages = ["src"]
-
-# Specify package locations
 [tool.hatch.build.targets.wheel]
-include = ["src/repo2md"]
+packages = ["src/repo2md"]

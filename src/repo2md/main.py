@@ -18,7 +18,7 @@ except ImportError:
 RED, GREEN, RESET = '\033[31m', '\033[32m', '\033[0m'
 CONFIG_DIR = Path.home() / "repo2md"
 ENV_PATH = CONFIG_DIR / ".env"
-REQUIRED_VARS = ["MODEL_ID", "OPENROUTER_BASE_URL", "OPENROUTER_API_KEY"]
+REQUIRED_VARS = []
 
 IGNORE_DIRS = {'.git', 'node_modules', '.vscode', 'dist', 'build', '.next', '.cache', '__pycache__', 'venv', 'env'}
 IGNORE_FILES = {'.DS_Store', '.gitignore', '.env'}
@@ -53,57 +53,55 @@ def should_ignore(path: Path) -> bool:
     return any(fnmatch.fnmatch(name, pattern) for pattern in WILDCARD_IGNORES)
 
 def generate_file_tree(path: Path, indent: str = "") -> str:
-    output = []
-    try:
-        for item in sorted(path.iterdir()):
+    lines = []
+    stack = [(path, indent)]
+    while stack:
+        current_path, current_indent = stack.pop()
+        try:
+            entries = sorted(current_path.iterdir(), reverse=True)
+        except Exception as e:
+            print(f"Error reading {current_path}: {e}", file=sys.stderr)
+            continue
+
+        for item in entries:
             if should_ignore(item):
                 continue
             if item.is_dir():
-                output.append(f"{indent}- 📂 {item.name}/")
-                output.append(generate_file_tree(item, indent + "  "))
+                lines.append(f"{current_indent}- 📂 {item.name}/")
+                stack.append((item, current_indent + "  "))
             else:
-                output.append(f"{indent}- 📄 {item.name}")
-    except Exception as e:
-        print(f"Error reading {path}: {e}", file=sys.stderr)
-    return "\n".join(output)
+                lines.append(f"{current_indent}- 📄 {item.name}")
+    return "\n".join(reversed(lines))
 
 def process_file(file_path: Path, rel_path: Path) -> str:
     try:
         size = file_path.stat().st_size
         if size > MAX_FILE_SIZE:
             return f"\n## {rel_path}\n\n*File too large to include ({size / 1024:.2f} KB)*\n\n"
-        try:
-            content = file_path.read_text(encoding='utf-8')
-        except UnicodeDecodeError:
-            return f"\n## {rel_path}\n\n*Binary file (not included)*\n\n"
-        ext = file_path.suffix.lstrip('.')
+        content = file_path.read_text(encoding='utf-8', errors='replace')
+        ext = file_path.suffix.lstrip('.') or 'txt'
         return f"\n## {rel_path}\n\n```{ext}\n{content}\n```\n\n"
     except Exception as e:
         return f"\n## {rel_path}\n\n*Error reading file: {e}*\n\n"
 
-def process_repository(base: Path, rel: Path = Path(), acc=None):
-    if acc is None:
-        acc = []
-    current = base / rel
-    try:
-        for item in sorted(current.iterdir()):
-            if should_ignore(item):
+def process_repository(base: Path) -> list[str]:
+    results = []
+    for root, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if not should_ignore(Path(d))]
+        for name in files:
+            file_path = Path(root) / name
+            if should_ignore(file_path):
                 continue
-            rel_item = rel / item.name
-            if item.is_dir():
-                process_repository(base, rel_item, acc)
-            else:
-                acc.append(process_file(item, rel_item))
-    except Exception as e:
-        print(f"Error processing {current}: {e}", file=sys.stderr)
-    return acc
+            rel_path = file_path.relative_to(base)
+            results.append(process_file(file_path, rel_path))
+    return results
 
 def generate_markdown(repo_path: Path) -> str:
     abs_repo = repo_path.resolve()
     header = f"# Repository: {abs_repo.name}\n\n*Generated on: {datetime.now().isoformat()}*\n\n"
-    file_tree = f"## File Tree\n\n```\n{generate_file_tree(abs_repo)}\n```\n\n"
+    tree = generate_file_tree(abs_repo)
     contents = "".join(process_repository(abs_repo))
-    return header + file_tree + contents
+    return f"{header}## File Tree\n\n```\n{tree}\n```\n\n{contents}"
 
 def main():
     parser = argparse.ArgumentParser(description='Convert a repository to a Markdown file')
@@ -113,24 +111,20 @@ def main():
 
     setup_env()
 
-    try:
-        repo_path = Path(args.repo_path)
-        print(f"Processing repository at: {repo_path.resolve()}", file=sys.stderr)
-        markdown = generate_markdown(repo_path)
-        if not markdown:
-            sys.exit(1)
-        if CLIPBOARD_AVAILABLE and not args.no_clipboard:
-            try:
-                pyperclip.copy(markdown)
-                print("✅ Markdown copied to clipboard", file=sys.stderr)
-            except Exception as e:
-                print(f"❌ Clipboard copy failed: {e}", file=sys.stderr)
-        elif not CLIPBOARD_AVAILABLE and not args.no_clipboard:
-            print("ℹ️ Install pyperclip for clipboard support: pip install pyperclip", file=sys.stderr)
-        print(markdown)
-    except Exception as e:
-        print(f"Fatal error: {e}", file=sys.stderr)
-        sys.exit(1)
+    repo_path = Path(args.repo_path)
+    print(f"Processing: {repo_path.resolve()}", file=sys.stderr)
+    markdown = generate_markdown(repo_path)
+
+    if not args.no_clipboard and CLIPBOARD_AVAILABLE:
+        try:
+            pyperclip.copy(markdown)
+            print("✅ Copied to clipboard", file=sys.stderr)
+        except Exception as e:
+            print(f"❌ Clipboard error: {e}", file=sys.stderr)
+    elif not args.no_clipboard:
+        print("ℹ️ Install pyperclip for clipboard support: pip install pyperclip", file=sys.stderr)
+
+    print(markdown)
 
 if __name__ == "__main__":
     main()

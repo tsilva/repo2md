@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "repo2md"
+version = "0.1.0"
+authors = [
+  { name = "Tiago Silva" },
+]
+description = "Convert a repository to a Markdown document"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+repo2md = "repo2md.main:main"
+
+# Use src layout which is the recommended approach
+[tool.hatch.build]
+packages = ["src"]
+
+# Specify package locations
+[tool.hatch.build.targets.wheel]
+packages = ["src/repo2md"]

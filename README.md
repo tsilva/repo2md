@@ -4,9 +4,9 @@
 
 📖 **Overview**
 
-`repo2md` is a command-line tool that scans a specified directory (typically a Git repository) and generates a comprehensive Markdown representation of its structure and content.
+`repo2md` is a command-line tool that scans a specified directory, typically a local Git repository, and generates a comprehensive Markdown representation of its structure and content.
 
-It creates a file tree overview and then concatenates the content of each relevant file, wrapping it in appropriate Markdown code blocks. The tool automatically ignores common directories (like `.git`, `node_modules`) and files (like `.DS_Store`, `.env`), as well as binary files or files exceeding a size limit, to keep the output clean and focused.
+It first creates a file tree overview. Then, it iterates through the repository's files, concatenating their content into the Markdown document, wrapped in appropriate code blocks. The tool automatically ignores common directories (like `.git`, `node_modules`) and files (like `.DS_Store`, `.env`), as well as binary files or files exceeding a size limit, to keep the output clean and focused.
 
 🚀 **Installation**
 

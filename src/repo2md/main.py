@@ -77,17 +77,21 @@ def process_file(file_path: Path, rel_path: Path) -> str:
     try:
         size = file_path.stat().st_size
         if size > MAX_FILE_SIZE:
-            return f"\n## {rel_path}\n\n*File too large to include ({size / 1024:.2f} KB)*\n\n"
+            return f"\n<<< START FILE: {rel_path} >>>\n*File too large to include ({size / 1024:.2f} KB)*\n<<< END FILE: {rel_path} >>>\n"
         content = file_path.read_text(encoding='utf-8', errors='replace')
         ext = file_path.suffix.lstrip('.') or 'txt'
-        return f"\n## {rel_path}\n\n```{ext}\n{content}\n```\n\n"
+        return (
+            f"\n<<< START FILE: {rel_path} >>>\n"
+            f"```{ext}\n{content}\n```\n"
+            f"<<< END FILE: {rel_path} >>>\n"
+        )
     except Exception as e:
-        return f"\n## {rel_path}\n\n*Error reading file: {e}*\n\n"
+        return f"\n<<< START FILE: {rel_path} >>>\n*Error reading file: {e}*\n<<< END FILE: {rel_path} >>>\n"
 
 def process_repository(base: Path) -> list[str]:
     results = []
     for root, dirs, files in os.walk(base):
-        dirs[:] = [d for d in dirs if not should_ignore(Path(d))]
+        dirs[:] = [d for d in dirs if not should_ignore(Path(root) / d)]
         for name in files:
             file_path = Path(root) / name
             if should_ignore(file_path):
@@ -98,15 +102,28 @@ def process_repository(base: Path) -> list[str]:
 
 def generate_markdown(repo_path: Path) -> str:
     abs_repo = repo_path.resolve()
-    header = f"# Repository: {abs_repo.name}\n\n*Generated on: {datetime.now().isoformat()}*\n\n"
+    header = f"# Repository: {abs_repo.name}\n\n*Generated on: {datetime.now().isoformat()}*\n"
     tree = generate_file_tree(abs_repo)
-    contents = "".join(process_repository(abs_repo))
-    return f"{header}## File Tree\n\n```\n{tree}\n```\n\n{contents}"
+    files_content = "".join(process_repository(abs_repo))
 
-def main():
-    parser = argparse.ArgumentParser(description='Convert a repository to a Markdown file')
-    parser.add_argument('repo_path', nargs='?', default='.', help='Path to the repository (default: current directory)')
-    parser.add_argument('--clipboard', action='store_true', help='Copy output to clipboard')
+    return f"""{header}
+
+## 📁 File Tree
+
+```tree
+{tree}
+```
+
+## 📄 Files
+
+{files_content}
+
+""".strip()
+
+def main(): 
+    parser = argparse.ArgumentParser(description='Convert a repository to a Markdown file') 
+    parser.add_argument('repo_path', nargs='?', default='.', help='Path to the repository (default: current directory)') 
+    parser.add_argument('--clipboard', action='store_true', help='Copy output to clipboard') 
     args = parser.parse_args()
 
     setup_env()
@@ -126,5 +143,5 @@ def main():
 
     print(markdown)
 
-if __name__ == "__main__":
+if __name__ == "main": 
     main()

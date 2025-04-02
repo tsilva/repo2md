@@ -8,11 +8,11 @@ version = "0.1.0"
 authors = [
   { name = "Tiago Silva" },
 ]
-description = "A utility for managing and organizing notes"
+description = "Convert a local repository into a single Markdown document."
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "python-dotenv"
+    "python-dotenv",
     "pyperclip"
 ]
 classifiers = [
@@ -26,8 +26,3 @@ repo2md = "repo2md.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/repo2md"]
-
-[tool.hatch.build]
-include = [
-  "src/repo2md/.env.example",
-]

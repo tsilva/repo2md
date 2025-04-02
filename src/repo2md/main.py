@@ -106,7 +106,7 @@ def generate_markdown(repo_path: Path) -> str:
 def main():
     parser = argparse.ArgumentParser(description='Convert a repository to a Markdown file')
     parser.add_argument('repo_path', nargs='?', default='.', help='Path to the repository (default: current directory)')
-    parser.add_argument('--no-clipboard', action='store_true', help='Do not copy output to clipboard')
+    parser.add_argument('--clipboard', action='store_true', help='Copy output to clipboard')
     args = parser.parse_args()
 
     setup_env()
@@ -115,13 +115,13 @@ def main():
     print(f"Processing: {repo_path.resolve()}", file=sys.stderr)
     markdown = generate_markdown(repo_path)
 
-    if not args.no_clipboard and CLIPBOARD_AVAILABLE:
+    if args.clipboard and CLIPBOARD_AVAILABLE:
         try:
             pyperclip.copy(markdown)
             print("✅ Copied to clipboard", file=sys.stderr)
         except Exception as e:
             print(f"❌ Clipboard error: {e}", file=sys.stderr)
-    elif not args.no_clipboard:
+    elif args.clipboard:
         print("ℹ️ Install pyperclip for clipboard support: pip install pyperclip", file=sys.stderr)
 
     print(markdown)

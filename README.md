@@ -12,6 +12,8 @@
 
 ## Overview
 
+[![CI](https://github.com/tsilva/repo2md/actions/workflows/release.yml/badge.svg)](https://github.com/tsilva/repo2md/actions/workflows/release.yml)
+
 `repo2md` is a CLI tool that converts local repositories into comprehensive Markdown documents. It generates a file tree overview followed by the concatenated content of all files, making codebases easy to share or feed to LLMs for analysis.
 
 **Features:**

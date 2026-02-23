@@ -27,3 +27,9 @@ repo2md = "repo2md.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/repo2md"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

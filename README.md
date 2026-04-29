@@ -1,95 +1,64 @@
 <div align="center">
-  <img src="logo.png" alt="repo2md" width="512"/>
-
-  [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-  [![Python](https://img.shields.io/badge/Python-3.8+-3776AB.svg)](https://www.python.org/)
-  [![PyPI](https://img.shields.io/pypi/v/repo2md)](https://pypi.org/project/repo2md/)
+  <img src="https://raw.githubusercontent.com/tsilva/repo2md/main/logo.png" alt="repo2md" width="512"/>
 
   **📦 Transform any repository into a single Markdown document, perfect for LLM analysis 🤖**
-
-  [Installation](#installation) · [Usage](#usage) · [Configuration](#configuration)
 </div>
 
-## Overview
+`repo2md` is a Python CLI that turns a local repository into one Markdown file. It prints a generated file tree followed by the content of every non-ignored text file, which makes a codebase easier to share, archive, or paste into an LLM.
 
-[![CI](https://github.com/tsilva/repo2md/actions/workflows/release.yml/badge.svg)](https://github.com/tsilva/repo2md/actions/workflows/release.yml)
+The tool skips common build and dependency folders, ignores binary files, and leaves oversized files out of the generated document.
 
-`repo2md` is a CLI tool that converts local repositories into comprehensive Markdown documents. It generates a file tree overview followed by the concatenated content of all files, making codebases easy to share or feed to LLMs for analysis.
+## Install
 
-**Features:**
-- 📁 Recursive file tree generation with visual hierarchy
-- 📄 Smart file concatenation with size and binary detection
-- 🚫 Automatic filtering of common ignore patterns (`.git`, `node_modules`, etc.)
-- 📋 Optional clipboard support via pyperclip
-
-## Installation
+Install the published package:
 
 ```bash
 pipx install repo2md
+repo2md
 ```
 
-Or install from source:
+Or install from this repository:
 
 ```bash
+git clone https://github.com/tsilva/repo2md.git
+cd repo2md
 pipx install . --force
+repo2md
 ```
+
+On first run, `repo2md` creates `~/.repo2md/.env` and exits. Run the command again after that file exists.
 
 ## Usage
 
 ```bash
-# Convert repository in current directory
-repo2md
-
-# Convert a specific repository path
-repo2md /path/to/your/repository
-
-# Copy output to clipboard
-repo2md /path/to/your/repository --clipboard
-
-# Save output to a file
-repo2md /path/to/your/repository > output.md
+repo2md                              # convert the current directory
+repo2md /path/to/repository          # convert a specific repository
+repo2md /path/to/repository > out.md # save the Markdown output
+repo2md /path/to/repository --clipboard
 ```
 
-## Output Format
+## Commands
 
-```markdown
-# Repository: project-name
-
-*Generated on: 2024-01-15T10:30:00*
-
-## 📁 File Tree
-
-- 📂 src/
-  - 📄 main.py
-  - 📄 utils.py
-- 📄 README.md
-
-## 📄 Files
-
-<<< START FILE: src/main.py >>>
-# file content here
-<<< END FILE: src/main.py >>>
+```bash
+pipx install . --force # install the local checkout as a CLI
+repo2md                # print Markdown for the current directory
+repo2md . --clipboard  # copy output when pyperclip is available
+make release-0.1.1     # bump hatch version, commit, and push
 ```
 
-## Configuration
+## Notes
 
-### Ignored Patterns
+- Output is written to `stdout`; progress and clipboard status are written to `stderr`.
+- Files larger than 500 KB are represented by a placeholder instead of full content.
+- Binary files are detected by checking for null bytes in the first 1024 bytes.
+- Ignored directories include `.git`, `node_modules`, `.vscode`, `dist`, `build`, `.next`, `.cache`, `__pycache__`, `venv`, and `env`.
+- Ignored files include `.DS_Store`, `.gitignore`, `.env`, common compiled libraries, Python bytecode, logs, and notebooks.
+- Clipboard support is optional. For a `pipx` install, add it with `pipx inject repo2md pyperclip`.
 
-**Directories:** `.git`, `node_modules`, `.vscode`, `dist`, `build`, `.next`, `.cache`, `__pycache__`, `venv`, `env`
+## Architecture
 
-**Files:** `.DS_Store`, `.gitignore`, `.env`
-
-**Wildcards:** `*.log`, `*.pyc`, `*.pyo`, `*.pyd`, `*.so`, `*.dylib`, `*.dll`, `*.ipynb`
-
-### Limits
-
-- **File size:** 500KB (files larger than this are skipped)
-- **Binary detection:** Files with null bytes in the first 1024 bytes are skipped
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+![repo2md architecture diagram](./architecture.png)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[MIT](LICENSE)

@@ -8,8 +8,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 try:
     import pyperclip
 
@@ -52,6 +50,19 @@ def fatal(msg):
     sys.exit(1)
 
 
+def load_env(path: Path) -> None:
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip("\"'")
+        if key:
+            os.environ[key] = value
+
+
 def setup_env():
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
     if not ENV_PATH.exists():
@@ -62,7 +73,7 @@ def setup_env():
         except Exception as e:
             fatal(f"❌ Could not create .env: {e}")
         sys.exit(1)
-    load_dotenv(dotenv_path=ENV_PATH, override=True)
+    load_env(ENV_PATH)
     missing = [v for v in REQUIRED_VARS if not os.getenv(v)]
     if missing:
         fatal(f"Missing env vars: {', '.join(missing)}")

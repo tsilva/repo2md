@@ -11,10 +11,36 @@ concurrency:
   cancel-in-progress: false
 jobs:
   test:
-    uses: tsilva/.github/.github/workflows/test.yml@main
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          cache: true
+      - name: Lint
+        run: uvx ruff check .
+      - name: Compile
+        run: uv run python -m compileall src
+      - name: Build package
+        run: uv build
 
   pii-scan:
-    uses: tsilva/.github/.github/workflows/pii-scan.yml@main
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for committed secrets
+        run: |
+          if git grep -nE 'AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY-----' -- . ':!uv.lock'; then
+            echo "Potential secret found in tracked files."
+            exit 1
+          fi
 
   publish:
     needs: [test, pii-scan]

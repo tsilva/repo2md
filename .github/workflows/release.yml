@@ -2,7 +2,10 @@ name: Release
 on:
   push:
     branches: [main]
-    paths: [pyproject.toml]
+    paths:
+      - .github/workflows/release.yml
+      - pyproject.toml
+      - src/**
 concurrency:
   group: release
   cancel-in-progress: false

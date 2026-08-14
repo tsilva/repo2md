@@ -23,7 +23,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup uv
-        uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           cache: true
       - name: Lint
@@ -78,7 +78,7 @@ jobs:
           echo "Version ${version}, tag ${tag}, tag_exists=${tag_exists}"
       - name: Setup uv
         if: steps.check-version.outputs.tag_exists == 'false'
-        uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           cache: true
       - name: Build package

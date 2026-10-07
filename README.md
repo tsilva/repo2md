@@ -1,8 +1,10 @@
-<div align="center">
+<p align="center">
   <img src="https://raw.githubusercontent.com/tsilva/repo2md/main/logo.png" alt="repo2md" width="512"/>
-
-  **📦 Transform any repository into a single Markdown document, perfect for LLM analysis 🤖**
-</div>
+  <br />
+  <!-- repo-tagline:start -->
+  <strong>📦 Turn any repository into one Markdown document for LLMs 🤖</strong>
+  <!-- repo-tagline:end -->
+</p>
 
 `repo2md` is a Python CLI that turns a local repository into one Markdown file. It prints a generated file tree followed by the content of every non-ignored text file, which makes a codebase easier to share, archive, or paste into an LLM.
 

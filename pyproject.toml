@@ -10,7 +10,7 @@ authors = [
 ]
 description = "A utility for managing and organizing notes"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "tqdm",
   "openai"
@@ -38,4 +38,5 @@ exclude-newer = "7 days"
 constraint-dependencies = [
   "mistralai!=2.4.6",
   "guardrails-ai!=0.10.1",
+  "anyio>=4.14.2",
 ]

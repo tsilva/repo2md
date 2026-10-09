@@ -12,6 +12,8 @@ The tool skips common build and dependency folders, ignores binary files, and le
 
 ## Install
 
+Requires Python 3.10 or newer.
+
 Install the published package:
 
 ```bash
